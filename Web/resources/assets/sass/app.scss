@@ -1,0 +1,49 @@
+// Variables
+@import "variables";
+
+// Semantic UI
+@import "~semantic-ui-css/semantic.css";
+
+body
+{
+  background: #f9fdff;
+  color: #364652;
+  overflow-x: hidden;
+  overflow-y: scroll !important;
+}
+
+.assets-loading
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: 'Raleway', sans-serif;
+  font-weight: 100;
+  font-size: 36px;
+  height: 100vh;
+}
+
+.swal-overlay
+{
+  overflow-y: hidden !important;
+}
+
+.app.wrapper
+{
+  display: block;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.app.center.aligned
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@import "header";
+@import "main";
+@import "footer";

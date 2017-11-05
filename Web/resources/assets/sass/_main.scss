@@ -1,0 +1,21 @@
+#main
+{
+  min-height: calc(100vh - 80px - 100px);
+
+  > .ui.container
+  {
+    margin: 0;
+  }
+
+  .temperature.slider
+  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .animated.color
+  {
+    transition: color 300ms ease-in-out 0s;
+  }
+}
