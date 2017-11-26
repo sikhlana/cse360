@@ -54,7 +54,10 @@ export default
 
         return axios.request(config).then(function(response)
         {
-            complete(response.data, response);
+            if (complete)
+            {
+                complete(response.data, response);
+            }
         }).catch(function(err)
         {
             if (error)

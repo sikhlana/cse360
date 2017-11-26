@@ -14,13 +14,13 @@ class WaterLevelsTableSeeder extends Seeder
     {
         \DB::table('water_levels')->truncate();
 
-        $d = Carbon::now()->subWeeks(2);
+        $d = Carbon::now()->subDay();
         $now = Carbon::now();
 
         $level = 100.0;
         $sub = true;
 
-        while ($d < $now)
+        while ($d <= $now)
         {
             \DB::table('water_levels')->insert([
                 'level' => $level,
@@ -33,7 +33,7 @@ class WaterLevelsTableSeeder extends Seeder
             {
                 $sub = false;
             }
-            else if ($level > 90)
+            else if ($level > 80)
             {
                 $sub = true;
             }

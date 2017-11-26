@@ -1695,6 +1695,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -1703,10 +1719,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            preferredTemp: 30,
-            currentTemp: 30,
+            preferredTemp: 0,
 
-            pumpOn: true,
+            variables: {
+                preferred_temperature: {},
+                current_temperature: {},
+                pump: {},
+                heater: {},
+                cooler: {}
+            },
 
             levels: [],
             labels: [],
@@ -1751,9 +1772,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
 
             return '#3f8efc';
-        },
-        updatePreferredTemp: function updatePreferredTemp() {
-            console.log(preferredTemp);
         }
     },
 
@@ -1772,6 +1790,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         for (var i = 0; i < 24; i++) {
             this.labels.push(__WEBPACK_IMPORTED_MODULE_2_moment___default()().subtract(24 - i, 'h').toDate());
         }
+
+        setInterval(function () {
+            __WEBPACK_IMPORTED_MODULE_0__api__["a" /* default */].get('/variables', {}, function (d) {
+                _this.variables = d;
+
+                if (_this.preferredTemp != d.preferred_temperature.value) {
+                    __WEBPACK_IMPORTED_MODULE_0__api__["a" /* default */].put('/variables/preferred_temperature', { value: _this.preferredTemp });
+                }
+            });
+        }, 1000);
+    },
+    beforeCreate: function beforeCreate() {
+        var _this2 = this;
+
+        __WEBPACK_IMPORTED_MODULE_0__api__["a" /* default */].get('/variables', [], function (d) {
+            _this2.variables = d;
+            _this2.preferredTemp = d.preferred_temperature.value;
+        });
     }
 });
 
@@ -100011,7 +100047,6 @@ var render = function() {
                       min: 25,
                       max: 55
                     },
-                    on: { change: _vm.updatePreferredTemp },
                     model: {
                       value: _vm.preferredTemp,
                       callback: function($$v) {
@@ -100052,10 +100087,17 @@ var render = function() {
                         {
                           staticClass: "animated color",
                           style: {
-                            color: _vm.getTemperatureColor(_vm.currentTemp)
+                            color: _vm.getTemperatureColor(
+                              _vm.variables.current_temperature.value
+                            )
                           }
                         },
-                        [_vm._v(_vm._s(_vm.currentTemp) + " °C")]
+                        [
+                          _vm._v(
+                            _vm._s(_vm.variables.current_temperature.value) +
+                              " °C"
+                          )
+                        ]
                       )
                     ]
                   )
@@ -100073,9 +100115,37 @@ var render = function() {
                 ),
                 _c("span", { staticClass: "sub header" }, [
                   _vm._v("The pump is currently turned "),
-                  _vm.pumpOn
-                    ? _c("strong", [_vm._v("on")])
-                    : _c("strong", [_vm._v("off")]),
+                  _c("strong", [_vm._v(_vm._s(_vm.variables.pump.value))]),
+                  _vm._v(".")
+                ])
+              ])
+            ]),
+            _vm._v(" "),
+            _c("h2", { staticClass: "ui header" }, [
+              _c("img", { attrs: { src: "/images/heater.svg" } }),
+              _vm._v(" "),
+              _c("span", { staticClass: "content" }, [
+                _vm._v(
+                  "\n                            Heater Status\n                            "
+                ),
+                _c("span", { staticClass: "sub header" }, [
+                  _vm._v("The heater is currently turned "),
+                  _c("strong", [_vm._v(_vm._s(_vm.variables.heater.value))]),
+                  _vm._v(".")
+                ])
+              ])
+            ]),
+            _vm._v(" "),
+            _c("h2", { staticClass: "ui header" }, [
+              _c("img", { attrs: { src: "/images/freezer.svg" } }),
+              _vm._v(" "),
+              _c("span", { staticClass: "content" }, [
+                _vm._v(
+                  "\n                            Cooler Status\n                            "
+                ),
+                _c("span", { staticClass: "sub header" }, [
+                  _vm._v("The cooler is currently turned "),
+                  _c("strong", [_vm._v(_vm._s(_vm.variables.cooler.value))]),
                   _vm._v(".")
                 ])
               ])
@@ -110910,7 +110980,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
 
         return axios.request(config).then(function (response) {
-            complete(response.data, response);
+            if (complete) {
+                complete(response.data, response);
+            }
         }).catch(function (err) {
             if (error) {
                 if (error(err) === false) {

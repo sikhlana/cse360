@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(VariablesTableSeeder::class);
         $this->call(WaterLevelsTableSeeder::class);
     }
 }
