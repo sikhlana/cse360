@@ -17,3 +17,6 @@ Route::group(['prefix' => 'water-levels'], function()
 {
     Route::get('', 'WaterLevelController@index');
 });
+
+Route::get('variables', 'VariableController@index');
+Route::put('/variables/{variable}', 'VariableController@update');

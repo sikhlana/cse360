@@ -22,14 +22,14 @@
 
                         <div class="temperature slider">
                             <div class="app wrapper">
-                                <circle-slider class="app center aligned" :side="150" v-model="preferredTemp" progress-color="#2e86ab" knob-color="#2e86ab" :min="25" :max="55" @change="updatePreferredTemp"></circle-slider>
+                                <circle-slider class="app center aligned" :side="150" v-model="preferredTemp" progress-color="#2e86ab" knob-color="#2e86ab" :min="25" :max="55"></circle-slider>
 
                                 <h3 class="ui header center aligned">
                                     Preferred Temperature: <span class="animated color" :style="{color: getTemperatureColor(preferredTemp)}">{{ preferredTemp }} &deg;C</span>
                                 </h3>
 
                                 <h3 class="ui header center aligned" style="margin-top: 0;">
-                                    Current Temperature: <span class="animated color" :style="{color: getTemperatureColor(currentTemp)}">{{ currentTemp }} &deg;C</span>
+                                    Current Temperature: <span class="animated color" :style="{color: getTemperatureColor(variables.current_temperature.value)}">{{ variables.current_temperature.value }} &deg;C</span>
                                 </h3>
                             </div>
                         </div>
@@ -38,7 +38,23 @@
                             <img src="/images/pump.svg">
                             <span class="content">
                                 Pump Status
-                                <span class="sub header">The pump is currently turned <strong v-if="pumpOn">on</strong><strong v-else>off</strong>.</span>
+                                <span class="sub header">The pump is currently turned <strong>{{ variables.pump.value }}</strong>.</span>
+                            </span>
+                        </h2>
+
+                        <h2 class="ui header">
+                            <img src="/images/heater.svg">
+                            <span class="content">
+                                Heater Status
+                                <span class="sub header">The heater is currently turned <strong>{{ variables.heater.value }}</strong>.</span>
+                            </span>
+                        </h2>
+
+                        <h2 class="ui header">
+                            <img src="/images/freezer.svg">
+                            <span class="content">
+                                Cooler Status
+                                <span class="sub header">The cooler is currently turned <strong>{{ variables.cooler.value }}</strong>.</span>
                             </span>
                         </h2>
                     </div>
@@ -78,10 +94,15 @@
         data()
         {
             return {
-                preferredTemp: 30,
-                currentTemp: 30,
+                preferredTemp: 0,
 
-                pumpOn: true,
+                variables: {
+                    preferred_temperature: {},
+                    current_temperature: {},
+                    pump: {},
+                    heater: {},
+                    cooler: {},
+                },
 
                 levels: [],
                 labels: [],
@@ -128,11 +149,6 @@
                 }
 
                 return '#3f8efc';
-            },
-
-            updatePreferredTemp()
-            {
-                console.log(preferredTemp);
             }
         },
 
@@ -147,8 +163,6 @@
                         y: v.level
                     });
                 });
-
-
             });
 
             for (let i = 0; i < 24; i++)
@@ -157,6 +171,28 @@
                     moment().subtract(24 - i, 'h').toDate()
                 );
             }
+
+            setInterval(() =>
+            {
+                api.get('/variables', {}, (d) =>
+                {
+                    this.variables = d;
+
+                    if (this.preferredTemp != d.preferred_temperature.value)
+                    {
+                        api.put('/variables/preferred_temperature', {value: this.preferredTemp});
+                    }
+                });
+            }, 1000);
+        },
+
+        beforeCreate()
+        {
+            api.get('/variables', [], (d) =>
+            {
+                this.variables = d;
+                this.preferredTemp = d.preferred_temperature.value;
+            });
         }
     }
 </script>
