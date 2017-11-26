@@ -22,7 +22,7 @@
 
                         <div class="temperature slider">
                             <div class="app wrapper">
-                                <circle-slider class="app center aligned" :side="150" v-model="preferredTemp" progress-color="#2e86ab" knob-color="#2e86ab" :min="25" :max="55"></circle-slider>
+                                <circle-slider class="app center aligned" :side="150" v-model="preferredTemp" progress-color="#2e86ab" knob-color="#2e86ab" :min="10" :max="55"></circle-slider>
 
                                 <h3 class="ui header center aligned">
                                     Preferred Temperature: <span class="animated color" :style="{color: getTemperatureColor(preferredTemp)}">{{ preferredTemp }} &deg;C</span>

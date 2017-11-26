@@ -100044,7 +100044,7 @@ var render = function() {
                       side: 150,
                       "progress-color": "#2e86ab",
                       "knob-color": "#2e86ab",
-                      min: 25,
+                      min: 10,
                       max: 55
                     },
                     model: {
