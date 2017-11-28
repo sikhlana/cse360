@@ -8,6 +8,20 @@
 #define D6 3
 #define D7 2
 
+long screenPreviousTiming = 0.0;
+long screenInterval = 2000;
+
+int screenIndex = 0;
+int screenLastIndex = 4;
+
+boolean screenChanged = true;
+
+#define SCREEN_TEMPERATURE  0
+#define SCREEN_LEVEL        1
+#define SCREEN_PUMP         2
+#define SCREEN_HEATER       3
+#define SCREEN_COOLER       4
+
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 
 /* Temperature */
@@ -38,6 +52,10 @@ float TempC=0.0;   // variable output
 #define HEATER 8
 #define COOLER 7
 
+boolean pumpIsOn = false;
+boolean heaterIsOn = false;
+boolean coolerIsOn = false;
+
 boolean isError = false;
 
 void setup()
@@ -49,6 +67,11 @@ void setup()
 
   beta = (log(RT1 / RT2)) / ((1 / T1) - (1 / T2));
   Rinf = R0 * exp(-beta / T0);
+
+  // Setting the default values...
+  digitalWrite(PUMP, HIGH);
+  digitalWrite(HEATER, LOW);
+  digitalWrite(COOLER, LOW);
 
   Serial.begin(9600);
   delay(2000);
@@ -128,29 +151,48 @@ void loop()
     processSerialInput();
   }
 
-  printTemperature(temp);
-  delay(2000);
+  unsigned long screenCurrentTiming = millis();
 
-  temp = getTemperature();
-  Serial.println(temp);
-  
-  level = getWaterLevel();
-  Serial.println(level);
-
-  delay(20);
-
-  while (Serial.available() >= 1)
+  if (screenCurrentTiming - screenPreviousTiming > screenInterval)
   {
-    processSerialInput();
+    screenPreviousTiming = screenCurrentTiming;
+    screenChanged = true;
+    
+    if (++screenIndex > screenLastIndex)
+    {
+      screenIndex = 0;
+    }
   }
-  
-  printWaterLevel(level);
-  delay(2000);
 
-  while (Serial.available() >= 1)
+  if (screenChanged)
   {
-    processSerialInput();
+    screenChanged = false;
+
+    switch (screenIndex)
+    {
+      case SCREEN_TEMPERATURE:
+        printTemperature(temp);
+        break;
+
+      case SCREEN_LEVEL:
+        printWaterLevel(level);
+        break;
+
+      case SCREEN_PUMP:
+        printPumpStatus();
+        break;
+
+      case SCREEN_HEATER:
+        printHeaterStatus();
+        break;
+
+      case SCREEN_COOLER:
+        printCoolerStatus();
+        break;
+    }
   }
+
+  delay(100);
 }
 
 float getTemperature()
@@ -160,19 +202,6 @@ float getTemperature()
 
   TempK = (beta / log(Rout / Rinf));
   return TempK - 273.15;  
-}
-
-void printTemperature(long temp)
-{
-  lcd.clear();
-
-  lcd.setCursor(0, 0);
-  lcd.print("Temperature:");
-
-  lcd.setCursor(0, 1);
-  lcd.print(temp);
-  lcd.print((char) 223);
-  lcd.print("C");
 }
 
 long getWaterLevel()
@@ -196,6 +225,19 @@ long getWaterLevel()
   return p;
 }
 
+void printTemperature(long temp)
+{
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Temperature:");
+
+  lcd.setCursor(0, 1);
+  lcd.print(temp);
+  lcd.print((char) 223);
+  lcd.print("C");
+}
+
 void printWaterLevel(long level)
 {
   lcd.clear();
@@ -208,19 +250,70 @@ void printWaterLevel(long level)
   lcd.print((char) 37);
 }
 
+void printPumpStatus()
+{
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Pump Status:");
+
+  lcd.setCursor(0, 1);
+  lcd.print(pumpIsOn ? "ON" : "OFF");
+}
+
+void printHeaterStatus()
+{
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Heater Status:");
+
+  lcd.setCursor(0, 1);
+  lcd.print(heaterIsOn ? "ON" : "OFF");
+}
+
+void printCoolerStatus()
+{
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Cooler Status:");
+
+  lcd.setCursor(0, 1);
+  lcd.print(coolerIsOn ? "ON" : "OFF");
+}
+
 void processSerialInput()
 {
   char ch = await();
+
+  if (ch == 'p')
+  {
+    if (await() == 'i')
+    {
+      digitalWrite(PUMP, LOW);
+      pumpIsOn = true;
+    }
+    else
+    {
+      digitalWrite(PUMP, HIGH);
+      pumpIsOn = false;
+    }
+
+    return;
+  }
   
   if (ch == 'h')
   {
     if (await() == 'i')
     {
       digitalWrite(HEATER, HIGH);
+      heaterIsOn = true;
     }
     else
     {
       digitalWrite(HEATER, LOW);
+      heaterIsOn = false;
     }
 
     return;
@@ -231,24 +324,12 @@ void processSerialInput()
     if (await() == 'i')
     {
       digitalWrite(COOLER, HIGH);
+      coolerIsOn = true;
     }
     else
     {
       digitalWrite(COOLER, LOW);
-    }
-
-    return;
-  }
-
-  if (ch == 'p')
-  {
-    if (await() == 'i')
-    {
-      digitalWrite(PUMP, LOW);
-    }
-    else
-    {
-      digitalWrite(PUMP, HIGH);
+      coolerIsOn = false;
     }
 
     return;
