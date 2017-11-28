@@ -13,10 +13,25 @@ LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 /* Temperature */
 #define TEMP 0
 
+float Vin=5.0;     // [V]        
+float Rt=10000;    // Resistor t [ohm]
+float R0=10000;    // value of rct in T0 [ohm]
+float T0=298.15;   // use T0 in Kelvin [K]
+float Vout=0.0;    // Vout in A0 
+float Rout=0.0;    // Rout in A0
+float T1=273.15;   // [K] in datasheet 0º C
+float T2=373.15;   // [K] in datasheet 100° C
+float RT1=35563;   // [ohms]  resistence in T1
+float RT2=549;     // [ohms]   resistence in T2
+float beta=0.0;    // initial parameters [K]
+float Rinf=0.0;    // initial parameters [ohm]   
+float TempK=0.0;   // variable output
+float TempC=0.0;   // variable output
+
 /* Water Level */
 #define TRIG 13
 #define ECHO 10
-#define HEIGHT 30
+#define HEIGHT 37
 
 /* Misc */
 #define PUMP 9
@@ -31,6 +46,9 @@ void setup()
   
   lcd.clear();
   lcd.print("Initializing...");
+
+  beta = (log(RT1 / RT2)) / ((1 / T1) - (1 / T2));
+  Rinf = R0 * exp(-beta / T0);
 
   Serial.begin(9600);
   delay(2000);
@@ -103,8 +121,28 @@ void loop()
   long level = getWaterLevel();
   Serial.println(level);
 
+  delay(20);
+
+  while (Serial.available() >= 1)
+  {
+    processSerialInput();
+  }
+
   printTemperature(temp);
   delay(2000);
+
+  temp = getTemperature();
+  Serial.println(temp);
+  
+  level = getWaterLevel();
+  Serial.println(level);
+
+  delay(20);
+
+  while (Serial.available() >= 1)
+  {
+    processSerialInput();
+  }
   
   printWaterLevel(level);
   delay(2000);
@@ -117,10 +155,11 @@ void loop()
 
 float getTemperature()
 {
-  int val = analogRead(TEMP);
-  
-  float ret = val / 1024.0;
-  return ret * 500;
+  Vout = Vin * ((float) (analogRead(TEMP)) / 1024.0);
+  Rout = (Rt * Vout / (Vin - Vout));
+
+  TempK = (beta / log(Rout / Rinf));
+  return TempK - 273.15;  
 }
 
 void printTemperature(long temp)
@@ -205,11 +244,11 @@ void processSerialInput()
   {
     if (await() == 'i')
     {
-      digitalWrite(PUMP, HIGH);
+      digitalWrite(PUMP, LOW);
     }
     else
     {
-      digitalWrite(PUMP, LOW);
+      digitalWrite(PUMP, HIGH);
     }
 
     return;

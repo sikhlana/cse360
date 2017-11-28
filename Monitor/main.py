@@ -1,7 +1,7 @@
 import serial
 import subprocess
 
-ser = serial.Serial('COM3', 9600)
+ser = serial.Serial('COM4', 9600)
 
 ch = ser.read()
 ser.write("o".encode())
