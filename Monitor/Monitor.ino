@@ -31,7 +31,7 @@ float TempC=0.0;   // variable output
 /* Water Level */
 #define TRIG 13
 #define ECHO 10
-#define HEIGHT 37
+#define HEIGHT 26
 
 /* Misc */
 #define PUMP 9

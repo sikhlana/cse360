@@ -2,8 +2,8 @@
     <section id="container">
         <header>
             <div class="ui stackable grid container">
-                <div class="eight wide stretched column">
-                    Water Monitor
+                <div class="sixteen wide stretched column" style="text-align: center;">
+                    Automated Water Monitor
                 </div>
             </div>
         </header>
@@ -38,7 +38,10 @@
                             <img src="/images/pump.svg">
                             <span class="content">
                                 Pump Status
-                                <span class="sub header">The pump is currently turned <strong>{{ variables.pump.value }}</strong>.</span>
+                                <span class="sub header">
+                                    The pump is currently turned <strong>{{ variables.pump.value }}</strong>.<br>
+                                    Current water level is <strong>{{ variables.water_level.value }}%</strong>.
+                                </span>
                             </span>
                         </h2>
 
@@ -81,7 +84,7 @@
         </section>
 
         <footer>
-            <p class="powered by">Made with <span>&hearts;</span> by Onegai Sensei.</p>
+            <p class="powered by">Made with <span>&hearts;</span> by TBT.</p>
         </footer>
     </section>
 </template>
@@ -99,6 +102,7 @@
                 variables: {
                     preferred_temperature: {},
                     current_temperature: {},
+                    water_level: {},
                     pump: {},
                     heater: {},
                     cooler: {},

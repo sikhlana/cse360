@@ -46,6 +46,8 @@ class Serial extends Command
         $pump = Variable::findOrFail('pump');
         /** @var Variable $currentTemp */
         $currentTemp = Variable::findOrFail('current_temperature');
+        /** @var Variable $waterLevel */
+        $waterLevel = Variable::findOrFail('water_level');
         /** @var Variable $cooler */
         $cooler = Variable::findOrFail('cooler');
         /** @var Variable $heater */
@@ -75,6 +77,7 @@ class Serial extends Command
 
         /** @var WaterLevel $latest */
         $latest = WaterLevel::orderByDesc('id')->first();
+        $waterLevel->value = $level;
 
         if ($latest->timestamp <= Carbon::now()->subMinutes(10))
         {
@@ -112,11 +115,21 @@ class Serial extends Command
             $output[] = 'co';
             $cooler->value = 'off';
         }
+        
+        if ($temp > $desiredLow && $temp < $desireHigh)
+        {
+            $output[] = 'co';
+            $cooler->value = 'off';
+            
+            $output[] = 'ho';
+            $heater->value = 'off';
+        }
 
         $pump->save();
         $cooler->save();
         $heater->save();
         $currentTemp->save();
+        $waterLevel->save();
 
         echo implode('|', $output);
         return null;

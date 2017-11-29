@@ -1711,6 +1711,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 
@@ -1724,6 +1727,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             variables: {
                 preferred_temperature: {},
                 current_temperature: {},
+                water_level: {},
                 pump: {},
                 heater: {},
                 cooler: {}
@@ -100114,9 +100118,19 @@ var render = function() {
                   "\n                            Pump Status\n                            "
                 ),
                 _c("span", { staticClass: "sub header" }, [
-                  _vm._v("The pump is currently turned "),
+                  _vm._v(
+                    "\n                                The pump is currently turned "
+                  ),
                   _c("strong", [_vm._v(_vm._s(_vm.variables.pump.value))]),
-                  _vm._v(".")
+                  _vm._v("."),
+                  _c("br"),
+                  _vm._v(
+                    "\n                                Current water level is "
+                  ),
+                  _c("strong", [
+                    _vm._v(_vm._s(_vm.variables.water_level.value) + "%")
+                  ]),
+                  _vm._v(".\n                            ")
                 ])
               ])
             ]),
@@ -100188,9 +100202,14 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("header", [
       _c("div", { staticClass: "ui stackable grid container" }, [
-        _c("div", { staticClass: "eight wide stretched column" }, [
-          _vm._v("\n                Water Monitor\n            ")
-        ])
+        _c(
+          "div",
+          {
+            staticClass: "sixteen wide stretched column",
+            staticStyle: { "text-align": "center" }
+          },
+          [_vm._v("\n                Automated Water Monitor\n            ")]
+        )
       ])
     ])
   },
@@ -100236,7 +100255,7 @@ var staticRenderFns = [
       _c("p", { staticClass: "powered by" }, [
         _vm._v("Made with "),
         _c("span", [_vm._v("♥")]),
-        _vm._v(" by Onegai Sensei.")
+        _vm._v(" by TBT.")
       ])
     ])
   }
